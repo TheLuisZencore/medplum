@@ -350,7 +350,7 @@ function getBaseSelectQuery(
     }
     builder = new SelectQuery('combined', new Union(...queries));
     if (opts?.addColumns ?? true) {
-      builder.column('id').column('content');
+      builder.column('id').column('lastUpdated').column('content');
     }
   } else {
     builder = getBaseSelectQueryForResourceType(repo, searchRequest.resourceType, searchRequest, opts);
@@ -368,7 +368,10 @@ function getBaseSelectQueryForResourceType(
   const addColumns = opts?.addColumns !== false;
   const idColumn = new Column(resourceType, 'id');
   if (addColumns) {
-    builder.column(idColumn).column(new Column(resourceType, 'content'));
+    builder
+      .column(idColumn)
+      .column(new Column(resourceType, 'lastUpdated'))
+      .column(new Column(resourceType, 'content'));
   }
   if (opts?.maxResourceVersion !== undefined) {
     const col = new Column(resourceType, '__version');
@@ -792,7 +795,7 @@ async function getAccurateCount(repo: Repository, searchRequest: SearchRequest):
   if (builder.joins.length > 0) {
     builder.raw(`COUNT (DISTINCT "${searchRequest.resourceType}"."id")::int AS "count"`);
   } else {
-    builder.raw('COUNT("id")::int AS "count"');
+    builder.raw('COUNT(*)::int AS "count"');
   }
 
   const rows = await builder.execute(repo.getDatabaseClient(DatabaseMode.READER));
@@ -1134,7 +1137,7 @@ function buildStringSearchFilter(
   return expression;
 }
 
-const prefixMatchOperators = [Operator.EQUALS, Operator.STARTS_WITH];
+const prefixMatchOperators: Operator[] = [Operator.EQUALS, Operator.STARTS_WITH];
 function buildStringFilterExpression(column: Column, operator: Operator, values: string[]): Expression {
   const conditions = values.map((v) => {
     if (operator === Operator.EXACT) {

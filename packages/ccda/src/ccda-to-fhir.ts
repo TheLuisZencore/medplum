@@ -69,6 +69,7 @@ import {
   ENCOUNTER_STATUS_MAPPER,
   HUMAN_NAME_USE_MAPPER,
   IMMUNIZATION_STATUS_MAPPER,
+  LOINC_SUMMARY_OF_EPISODE_NOTE,
   mapCcdaSystemToFhir,
   MEDICATION_STATUS_MAPPER,
   OBSERVATION_CATEGORY_MAPPER,
@@ -307,7 +308,7 @@ class CcdaToFhirConverter {
       status: 'final',
       type: this.ccda.code
         ? (this.mapCode(this.ccda.code) as CodeableConcept)
-        : { coding: [{ system: LOINC, code: '34133-9' }] },
+        : { coding: [{ system: LOINC, code: LOINC_SUMMARY_OF_EPISODE_NOTE }] },
       confidentiality: this.ccda.confidentialityCode?.['@_code'] as Composition['confidentiality'],
       author: this.ccda.author?.[0]
         ? [
@@ -502,7 +503,7 @@ class CcdaToFhirConverter {
       resourceType: 'CarePlan',
       id: this.mapId(act.id),
       identifier: this.mapIdentifiers(act.id),
-      status: 'active',
+      status: 'completed',
       intent: 'plan',
       title: 'CARE PLAN',
       category: act.code ? [this.mapCode(act.code) as CodeableConcept] : undefined,

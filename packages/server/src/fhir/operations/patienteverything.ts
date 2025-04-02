@@ -1,5 +1,6 @@
 import {
   allOk,
+  Filter,
   flatMapFilter,
   getReferenceString,
   isReference,
@@ -79,7 +80,7 @@ export async function getPatientEverything(
   types.push('Patient');
   sortStringArray(types);
 
-  const filters = [
+  const filters: Filter[] = [
     {
       code: '_compartment',
       operator: Operator.EQUALS,
@@ -160,7 +161,7 @@ function processReferencesFromResources(toProcess: BundleEntry[], processedRefs:
 
 // Most relevant resource types are already included in the Patient compartment, so
 // only references of select other types need to be resolved
-const allowedReferenceTypes = /^(Organization|Location|Practitioner|Medication|Device)\//;
+const allowedReferenceTypes = /^(Organization|Location|Practitioner|PractitionerRole|Medication|Device)\//;
 function shouldResolveReference(refString: string): boolean {
   return allowedReferenceTypes.test(refString);
 }
